@@ -1,0 +1,86 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // 1. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Common helper functions
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+    
+    function incoming() {
+      return request.resource.data;
+    }
+    
+    function existing() {
+      return resource.data;
+    }
+    
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Validation helper for UserProfile
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['id', 'username', 'email'])
+        && data.id is string && data.id.size() <= 128
+        && data.username is string && data.username.size() <= 64
+        && data.email is string && data.email.size() <= 128;
+    }
+
+    // Validation helper for TradeActivity
+    function isValidTradeActivity(data) {
+      return data.keys().hasAll(['id', 'userId', 'symbol', 'type', 'amount', 'price', 'totalUsd', 'timestamp', 'status'])
+        && data.id is string && data.id.size() <= 128
+        && data.userId is string && data.userId.size() <= 128
+        && data.symbol is string && data.symbol.size() <= 32
+        && data.type is string && data.type.size() <= 32
+        && data.amount is number
+        && data.price is number
+        && data.totalUsd is number
+        && data.timestamp is string && data.timestamp.size() <= 128
+        && data.status is string && data.status.size() <= 32;
+    }
+
+    // Rules for user_profiles collection
+    match /user_profiles/{profileId} {
+      allow read: if isSignedIn();
+      
+      allow create: if isSignedIn() 
+        && isValidUserProfile(incoming())
+        && incoming().id == profileId;
+
+      allow update: if isSignedIn()
+        && isValidUserProfile(incoming())
+        // Ensure immutability of id
+        && incoming().id == existing().id;
+
+      allow delete: if isSignedIn() && isOwner(profileId);
+    }
+
+    // Rules for trade_activities collection
+    match /trade_activities/{activityId} {
+      allow read: if isSignedIn();
+      
+      allow create: if isSignedIn()
+        && isValidTradeActivity(incoming())
+        && incoming().userId == request.auth.uid;
+
+      allow update: if isSignedIn()
+        && isValidTradeActivity(incoming())
+        && incoming().id == existing().id
+        && incoming().userId == existing().userId;
+
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+    
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile with balances, holdings, and credentials",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "avatar": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "buyingPower": {
+          "type": "number"
+        },
+        "holdings": {
+          "type": "object"
+        },
+        "stacksAddress": {
+          "type": "string"
+        },
+        "lastStxBalance": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "id",
+        "username",
+        "email"
+      ]
+    },
+    "TradeActivity": {
+      "title": "TradeActivity",
+      "description": "Ledger trade logs of a user's transactions",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "number"
+        },
+        "price": {
+          "type": "number"
+        },
+        "totalUsd": {
+          "type": "number"
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "symbol",
+        "type",
+        "amount",
+        "price",
+        "totalUsd",
+        "timestamp",
+        "status"
+      ]
+    }
+  },
+  "firestore": {
+    "/user_profiles/{profileId}": {
+      "schema": "UserProfile",
+      "description": "User profiles database"
+    },
+    "/trade_activities/{activityId}": {
+      "schema": "TradeActivity",
+      "description": "Trade log ledger database"
+    }
+  }
+}

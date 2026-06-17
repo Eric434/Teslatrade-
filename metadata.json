@@ -1,0 +1,6 @@
+{
+  "name": "TESLA Trade",
+  "description": "Tesla-focused investment dashboard with real-time stock price fluctuations, multi-user portfolio tracking, Stacks testnet STX blockchain deposit integration, and a Gemini AI portfolio advisor.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
